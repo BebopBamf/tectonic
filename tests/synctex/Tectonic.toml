@@ -1,6 +1,6 @@
 [doc]
 name = "synctex"
-bundle = "https://data1.fullyjustified.net/tlextras-2022.0r0.tar"
+bundle = "https://bebopbamf-tex.syd1.cdn.digitaloceanspaces.com/texlive2024-0312.ttb"
 
 [[output]]
 name = "default"
