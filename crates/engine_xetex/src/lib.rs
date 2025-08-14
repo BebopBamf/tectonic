@@ -1,8 +1,6 @@
 // Copyright 2021-2022 the Tectonic Project
 // Licensed under the MIT License.
 
-#![deny(missing_docs)]
-
 //! The [XeTeX] program as a reusable crate.
 //!
 //! [XeTeX]: http://www.xetex.org/
@@ -191,26 +189,18 @@ impl TexEngine {
             // Note that we have to do all of this setup while holding the
             // lock, because we're modifying static state variables.
 
+            // SAFETY: All methods are called with valid C-strings and while the global lock is held.
             let r = unsafe {
                 use c_api::*;
                 tt_xetex_set_int_variable(
-                    b"shell_escape_enabled\0".as_ptr() as _,
+                    c"shell_escape_enabled".as_ptr(),
                     self.shell_escape_enabled.into(),
                 );
+                tt_xetex_set_int_variable(c"halt_on_error_p".as_ptr(), self.halt_on_error.into());
+                tt_xetex_set_int_variable(c"in_initex_mode".as_ptr(), self.initex_mode.into());
+                tt_xetex_set_int_variable(c"synctex_enabled".as_ptr(), self.synctex_enabled.into());
                 tt_xetex_set_int_variable(
-                    b"halt_on_error_p\0".as_ptr() as _,
-                    self.halt_on_error.into(),
-                );
-                tt_xetex_set_int_variable(
-                    b"in_initex_mode\0".as_ptr() as _,
-                    self.initex_mode.into(),
-                );
-                tt_xetex_set_int_variable(
-                    b"synctex_enabled\0".as_ptr() as _,
-                    self.synctex_enabled.into(),
-                );
-                tt_xetex_set_int_variable(
-                    b"semantic_pagination_enabled\0".as_ptr() as _,
+                    c"semantic_pagination_enabled".as_ptr(),
                     self.semantic_pagination_enabled.into(),
                 );
 
@@ -266,6 +256,9 @@ mod linkage {
 
     #[allow(unused_imports)]
     use tectonic_xetex_layout as clipyrenamehack2;
+
+    #[allow(unused_imports)]
+    use tectonic_bridge_icu as clipyrenamehack3;
 }
 
 /// Does our resulting executable link correctly?

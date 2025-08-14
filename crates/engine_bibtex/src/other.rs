@@ -1,9 +1,18 @@
-use crate::{FieldLoc, HashPointer, StrNumber};
+use crate::{hash, pool::StrNumber, FieldLoc, HashPointer};
 
 const MAX_FIELDS: usize = 17250;
 
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum WizOp {
+    Text(HashPointer<hash::Text>),
+    Int(HashPointer<hash::Integer>),
+    Exec(HashPointer<hash::BstFn>),
+    Quote(HashPointer<hash::BstFn>),
+    EndOfDef,
+}
+
 pub(crate) struct OtherData {
-    wiz_functions: Vec<HashPointer>,
+    wiz_functions: Vec<WizOp>,
     field_info: Vec<StrNumber>,
     num_fields: FieldLoc,
     num_pre_defined_fields: FieldLoc,
@@ -14,7 +23,7 @@ impl OtherData {
     pub fn new() -> OtherData {
         OtherData {
             wiz_functions: Vec::new(),
-            field_info: vec![0; MAX_FIELDS + 1],
+            field_info: vec![StrNumber::invalid(); MAX_FIELDS + 1],
             num_fields: 0,
             num_pre_defined_fields: 0,
             crossref_num: 0,
@@ -52,7 +61,7 @@ impl OtherData {
     pub fn check_field_overflow(&mut self, fields: usize) {
         while fields > self.field_info.len() {
             self.field_info
-                .resize(self.field_info.len() + MAX_FIELDS, 0);
+                .resize(self.field_info.len() + MAX_FIELDS, StrNumber::invalid());
         }
     }
 
@@ -64,12 +73,12 @@ impl OtherData {
         self.crossref_num = val;
     }
 
-    pub fn wiz_function(&self, pos: usize) -> HashPointer {
-        self.wiz_functions[pos]
+    pub fn extend_wiz_data(&mut self, ops: impl IntoIterator<Item = WizOp>) {
+        self.wiz_functions.extend(ops);
     }
 
-    pub fn push_wiz_func(&mut self, val: HashPointer) {
-        self.wiz_functions.push(val)
+    pub fn wiz_function(&self, pos: usize) -> WizOp {
+        self.wiz_functions[pos]
     }
 
     pub fn wiz_func_len(&self) -> usize {

@@ -1,8 +1,6 @@
 // Copyright 2016-2022 the Tectonic Project
 // Licensed under the MIT License.
 
-#![deny(missing_docs)]
-
 //! Core APIs for bridging the C and Rust portions of Tectonic’s processing
 //! backends.
 //!
@@ -196,6 +194,8 @@ impl<T: IoProvider> DriverHooks for MinimalDriver<T> {
 // Function defined in the C support code:
 extern "C" {
     fn _ttbc_get_error_message() -> *const libc::c_char;
+    #[allow(improper_ctypes)]
+    fn _ttbc_get_core_state() -> *mut CoreBridgeState<'static>;
 }
 
 lazy_static::lazy_static! {
@@ -223,9 +223,13 @@ impl EngineAbortedError {
         }
     }
 
-    unsafe fn new_with_details() -> Self {
-        let ptr = _ttbc_get_error_message();
-        let message = CStr::from_ptr(ptr).to_string_lossy().into_owned();
+    fn new_with_details() -> Self {
+        // SAFETY: This is always safe to call
+        let ptr = unsafe { _ttbc_get_error_message() };
+        // SAFETY: The pointer returned above will always have a null-terminated C-string in it
+        let message = unsafe { CStr::from_ptr(ptr) }
+            .to_string_lossy()
+            .into_owned();
         EngineAbortedError { message }
     }
 }
@@ -314,7 +318,7 @@ impl<'a> CoreBridgeLauncher<'a> {
 
         if let Err(ref e) = result {
             if e.downcast_ref::<EngineAbortedError>().is_some() {
-                return Err(unsafe { EngineAbortedError::new_with_details() }.into());
+                return Err(EngineAbortedError::new_with_details().into());
             }
         }
 
@@ -373,6 +377,18 @@ impl<'a> CoreBridgeState<'a> {
             latest_input_path: None,
             fs_emulation_settings,
         }
+    }
+
+    /// Get the current global bridge state. Uses a mutex to ensure unique access, and panics
+    /// if no global state is set.
+    pub fn with_global_state<T, F: for<'b> FnOnce(&mut CoreBridgeState<'b>) -> T>(f: F) -> T {
+        /// Ensures we only enter the state once at a time, globally
+        static GLOBAL: Mutex<()> = Mutex::new(());
+        let _lock = GLOBAL.lock().unwrap();
+        // SAFETY: Pointer is either null or valid, set by the engine on entrance
+        let state = unsafe { _ttbc_get_core_state().as_mut() }
+            .expect("Currently within an engine context in C");
+        f(state)
     }
 
     fn input_open_name_format(
@@ -635,7 +651,8 @@ impl<'a> CoreBridgeState<'a> {
         InputId::new(self.input_handles.len())
     }
 
-    fn input_get_size(&mut self, handle: InputId) -> usize {
+    /// Get the size of an input. Prints a warning and returns 0 on error
+    pub fn input_get_size(&mut self, handle: InputId) -> usize {
         let rhandle: &mut InputHandle = self.get_input(handle);
 
         match rhandle.get_size() {
@@ -669,7 +686,8 @@ impl<'a> CoreBridgeState<'a> {
         rhandle.try_seek(pos)
     }
 
-    fn input_read(&mut self, handle: InputId, buf: &mut [u8]) -> Result<()> {
+    /// Read from an input
+    pub fn input_read(&mut self, handle: InputId, buf: &mut [u8]) -> Result<()> {
         let rhandle: &mut InputHandle = self.get_input(handle);
         rhandle.read_exact(buf).map_err(Error::from)
     }

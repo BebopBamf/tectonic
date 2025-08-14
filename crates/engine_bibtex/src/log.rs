@@ -5,12 +5,12 @@ use crate::{
     char_info::LexClass,
     cite::CiteInfo,
     exec::{bst_ex_warn_print, bst_ln_num_print, ExecCtx},
-    hash::{BstFn, HashData, HashExtra},
+    hash::{BstFn, HashData},
     other::OtherData,
     peekable::input_ln,
-    pool::StringPool,
+    pool::{StrNumber, StringPool},
     scan::{Scan, ScanRes},
-    ASCIICode, Bibtex, BibtexError, CiteNumber, FieldLoc, HashPointer, StrNumber,
+    ASCIICode, Bibtex, BibtexError, CiteNumber, FieldLoc, HashPointer,
 };
 use std::{ffi::CStr, io::Write, slice};
 use tectonic_io_base::OutputHandle;
@@ -117,7 +117,7 @@ pub(crate) fn out_pool_str(
     s: StrNumber,
 ) -> Result<(), BibtexError> {
     let str = pool.try_get_str(s);
-    if let Ok(str) = str {
+    if let Some(str) = str {
         ctx.write_log_file(str);
         Ok(())
     } else {
@@ -133,7 +133,7 @@ pub(crate) fn print_a_pool_str(
     pool: &StringPool,
 ) -> Result<(), BibtexError> {
     let str = pool.try_get_str(s);
-    if let Ok(str) = str {
+    if let Some(str) = str {
         ctx.write_logs(str);
         Ok(())
     } else {
@@ -237,7 +237,7 @@ pub(crate) fn print_bib_name(
     print_a_pool_str(ctx, name, pool)?;
     let res = pool
         .try_get_str(name)
-        .map_err(|_| BibtexError::Fatal)
+        .ok_or(BibtexError::Fatal)
         .map(|str| str.ends_with(b".bib"))?;
     if !res {
         ctx.write_logs(".bib");
@@ -255,7 +255,7 @@ pub(crate) fn log_pr_bib_name(
     let res = pool
         .try_get_str(name)
         .map(|str| str.ends_with(b".bib"))
-        .map_err(|_| BibtexError::Fatal)?;
+        .ok_or(BibtexError::Fatal)?;
     if !res {
         ctx.write_log_file(".bib");
     }
@@ -524,18 +524,19 @@ pub(crate) fn braces_unbalanced_complaint(
     bst_mild_ex_warn_print(ctx, pool, cites)
 }
 
-pub(crate) fn print_fn_class(ctx: &mut Bibtex<'_, '_>, hash: &HashData, fn_loc: HashPointer) {
-    match hash.node(fn_loc).extra {
-        HashExtra::BstFn(BstFn::Builtin(_)) => ctx.write_logs("built-in"),
-        HashExtra::BstFn(BstFn::Wizard(_)) => ctx.write_logs("wizard-defined"),
-        HashExtra::Integer(_) => ctx.write_logs("integer-literal"),
-        HashExtra::Text => ctx.write_logs("string-literal"),
-        HashExtra::BstFn(BstFn::Field(_)) => ctx.write_logs("field"),
-        HashExtra::BstFn(BstFn::IntEntry(_)) => ctx.write_logs("integer-entry-variable"),
-        HashExtra::BstFn(BstFn::StrEntry(_)) => ctx.write_logs("string-entry-variable"),
-        HashExtra::BstFn(BstFn::IntGlbl(_)) => ctx.write_logs("integer-global-variable"),
-        HashExtra::BstFn(BstFn::StrGlbl(_)) => ctx.write_logs("string-global-variable"),
-        _ => ctx.write_logs("unknown-fn"),
+pub(crate) fn print_fn_class(
+    ctx: &mut Bibtex<'_, '_>,
+    hash: &HashData,
+    fn_loc: HashPointer<BstFn>,
+) {
+    match hash.get(fn_loc).extra() {
+        BstFn::Builtin(_) => ctx.write_logs("built-in"),
+        BstFn::Wizard(_) => ctx.write_logs("wizard-defined"),
+        BstFn::Field(_) => ctx.write_logs("field"),
+        BstFn::IntEntry(_) => ctx.write_logs("integer-entry-variable"),
+        BstFn::StrEntry(_) => ctx.write_logs("string-entry-variable"),
+        BstFn::IntGlbl(_) => ctx.write_logs("integer-global-variable"),
+        BstFn::StrGlbl(_) => ctx.write_logs("string-global-variable"),
     }
 }
 
@@ -563,9 +564,9 @@ pub(crate) fn already_seen_function_print(
     buffers: &mut GlobalBuffer,
     pool: &StringPool,
     hash: &HashData,
-    seen_fn_loc: HashPointer,
+    seen_fn_loc: HashPointer<BstFn>,
 ) -> Result<(), BibtexError> {
-    print_a_pool_str(ctx, hash.text(seen_fn_loc), pool)?;
+    print_a_pool_str(ctx, hash.get(seen_fn_loc).text(), pool)?;
     ctx.write_logs(" is already a type \"");
     print_fn_class(ctx, hash, seen_fn_loc);
     ctx.write_logs("\" function name\n");
