@@ -61,6 +61,15 @@ pub enum TexOutcome {
     Errors,
 }
 
+/// TODO
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct SyncTexConfig {
+    /// TODO
+    pub use_gz: bool,
+    /// TODO
+    pub texpresso_extension: bool,
+}
+
 /// A struct for invoking the (Xe)TeX engine.
 ///
 /// This struct has a fairly straightforward "builder" interface: you create it,
@@ -79,7 +88,7 @@ pub struct TexEngine {
     // though, it's just a proxy for the global constants in the C code.
     halt_on_error: bool,
     initex_mode: bool,
-    synctex_enabled: bool,
+    synctex_enabled: Option<SyncTexConfig>,
     semantic_pagination_enabled: bool,
     shell_escape_enabled: bool,
     build_date: SystemTime,
@@ -90,7 +99,7 @@ impl Default for TexEngine {
         TexEngine {
             halt_on_error: true,
             initex_mode: false,
-            synctex_enabled: false,
+            synctex_enabled: None,
             semantic_pagination_enabled: false,
             shell_escape_enabled: false,
             build_date: SystemTime::UNIX_EPOCH,
@@ -120,7 +129,7 @@ impl TexEngine {
     /// Configure the engine to produce SyncTeX data.
     ///
     /// The default is false.
-    pub fn synctex(&mut self, synctex_enabled: bool) -> &mut Self {
+    pub fn synctex(&mut self, synctex_enabled: Option<SyncTexConfig>) -> &mut Self {
         self.synctex_enabled = synctex_enabled;
         self
     }
@@ -198,7 +207,21 @@ impl TexEngine {
                 );
                 tt_xetex_set_int_variable(c"halt_on_error_p".as_ptr(), self.halt_on_error.into());
                 tt_xetex_set_int_variable(c"in_initex_mode".as_ptr(), self.initex_mode.into());
-                tt_xetex_set_int_variable(c"synctex_enabled".as_ptr(), self.synctex_enabled.into());
+                tt_xetex_set_int_variable(
+                    c"synctex_enabled".as_ptr(),
+                    self.synctex_enabled.is_some().into(),
+                );
+                if let Some(config) = &self.synctex_enabled {
+                    tt_xetex_set_int_variable(
+                        b"synctex_use_gz\0".as_ptr() as _,
+                        config.use_gz.into(),
+                    );
+                    tt_xetex_set_int_variable(
+                        b"synctex_texpresso_extension\0".as_ptr() as _,
+                        config.texpresso_extension.into(),
+                    );
+                };
+
                 tt_xetex_set_int_variable(
                     c"semantic_pagination_enabled".as_ptr(),
                     self.semantic_pagination_enabled.into(),

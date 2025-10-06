@@ -172,6 +172,20 @@ pub trait DriverHooks {
     ) -> StdResult<(), SystemRequestError> {
         Err(SystemRequestError::NotImplemented)
     }
+
+    /// TODO
+    fn pic_get_cached_bounds(
+        &mut self,
+        _path: &str,
+        _type: i32,
+        _page: i32,
+        _bounds: &mut [f32; 4],
+    ) -> bool {
+        false
+    }
+
+    /// TODO
+    fn pic_set_cached_bounds(&mut self, _path: &str, _type: i32, _page: i32, _bounds: &[f32; 4]) {}
 }
 
 /// This type provides a minimal [`DriverHooks`] implementation.

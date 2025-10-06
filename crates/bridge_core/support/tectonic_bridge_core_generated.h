@@ -11,7 +11,6 @@ typedef rust_input_handle_t Option_InputId;
 typedef rust_output_handle_t Option_OutputId;
 #define INVALID_HANDLE ((uintptr_t)0)
 
-
 /**
  * Different types of files that can be opened by TeX engines
  *
@@ -20,98 +19,98 @@ typedef rust_output_handle_t Option_OutputId;
  *
  */
 typedef enum {
-  /**
-   * An Adobe Font Metrics file.
-   */
-  TTBC_FILE_FORMAT_AFM = 4,
-  /**
-   * A BibTeX bibliography data file.
-   */
-  TTBC_FILE_FORMAT_BIB = 6,
-  /**
-   * A BibTeX style file.
-   */
-  TTBC_FILE_FORMAT_BST = 7,
-  /**
-   * A character map data file.
-   */
-  TTBC_FILE_FORMAT_CMAP = 45,
-  /**
-   * A configuration file.
-   */
-  TTBC_FILE_FORMAT_CNF = 8,
-  /**
-   * An encoding data file.
-   */
-  TTBC_FILE_FORMAT_ENC = 44,
-  /**
-   * A TeX "format" file.
-   */
-  TTBC_FILE_FORMAT_FORMAT = 10,
-  /**
-   * A font-map file.
-   */
-  TTBC_FILE_FORMAT_FONT_MAP = 11,
-  /**
-   * A miscellaneous font file.
-   */
-  TTBC_FILE_FORMAT_MISC_FONTS = 41,
-  /**
-   * An OFM font metrics file.
-   */
-  TTBC_FILE_FORMAT_OFM = 20,
-  /**
-   * An OpenType font file.
-   */
-  TTBC_FILE_FORMAT_OPEN_TYPE = 47,
-  /**
-   * An OVF file.
-   */
-  TTBC_FILE_FORMAT_OVF = 23,
-  /**
-   * An image file.
-   */
-  TTBC_FILE_FORMAT_PICT = 25,
-  /**
-   * A PK font file.
-   */
-  TTBC_FILE_FORMAT_PK = 1,
-  /**
-   * A general program data file.
-   */
-  TTBC_FILE_FORMAT_PROGRAM_DATA = 39,
-  /**
-   * An SFD file.
-   */
-  TTBC_FILE_FORMAT_SFD = 46,
-  /**
-   * The Tectonic primary input file.
-   */
-  TTBC_FILE_FORMAT_TECTONIC_PRIMARY = 59,
-  /**
-   * A TeX language file.
-   */
-  TTBC_FILE_FORMAT_TEX = 26,
-  /**
-   * A TeX PostScript header file.
-   */
-  TTBC_FILE_FORMAT_TEX_PS_HEADER = 30,
-  /**
-   * A TeX Font Metrics file.
-   */
-  TTBC_FILE_FORMAT_TFM = 3,
-  /**
-   * A TrueType font file.
-   */
-  TTBC_FILE_FORMAT_TRUE_TYPE = 36,
-  /**
-   * A Type1 font file.
-   */
-  TTBC_FILE_FORMAT_TYPE1 = 32,
-  /**
-   * A Virtual Font file.
-   */
-  TTBC_FILE_FORMAT_VF = 33,
+        /**
+         * An Adobe Font Metrics file.
+         */
+        TTBC_FILE_FORMAT_AFM = 4,
+        /**
+         * A BibTeX bibliography data file.
+         */
+        TTBC_FILE_FORMAT_BIB = 6,
+        /**
+         * A BibTeX style file.
+         */
+        TTBC_FILE_FORMAT_BST = 7,
+        /**
+         * A character map data file.
+         */
+        TTBC_FILE_FORMAT_CMAP = 45,
+        /**
+         * A configuration file.
+         */
+        TTBC_FILE_FORMAT_CNF = 8,
+        /**
+         * An encoding data file.
+         */
+        TTBC_FILE_FORMAT_ENC = 44,
+        /**
+         * A TeX "format" file.
+         */
+        TTBC_FILE_FORMAT_FORMAT = 10,
+        /**
+         * A font-map file.
+         */
+        TTBC_FILE_FORMAT_FONT_MAP = 11,
+        /**
+         * A miscellaneous font file.
+         */
+        TTBC_FILE_FORMAT_MISC_FONTS = 41,
+        /**
+         * An OFM font metrics file.
+         */
+        TTBC_FILE_FORMAT_OFM = 20,
+        /**
+         * An OpenType font file.
+         */
+        TTBC_FILE_FORMAT_OPEN_TYPE = 47,
+        /**
+         * An OVF file.
+         */
+        TTBC_FILE_FORMAT_OVF = 23,
+        /**
+         * An image file.
+         */
+        TTBC_FILE_FORMAT_PICT = 25,
+        /**
+         * A PK font file.
+         */
+        TTBC_FILE_FORMAT_PK = 1,
+        /**
+         * A general program data file.
+         */
+        TTBC_FILE_FORMAT_PROGRAM_DATA = 39,
+        /**
+         * An SFD file.
+         */
+        TTBC_FILE_FORMAT_SFD = 46,
+        /**
+         * The Tectonic primary input file.
+         */
+        TTBC_FILE_FORMAT_TECTONIC_PRIMARY = 59,
+        /**
+         * A TeX language file.
+         */
+        TTBC_FILE_FORMAT_TEX = 26,
+        /**
+         * A TeX PostScript header file.
+         */
+        TTBC_FILE_FORMAT_TEX_PS_HEADER = 30,
+        /**
+         * A TeX Font Metrics file.
+         */
+        TTBC_FILE_FORMAT_TFM = 3,
+        /**
+         * A TrueType font file.
+         */
+        TTBC_FILE_FORMAT_TRUE_TYPE = 36,
+        /**
+         * A Type1 font file.
+         */
+        TTBC_FILE_FORMAT_TYPE1 = 32,
+        /**
+         * A Virtual Font file.
+         */
+        TTBC_FILE_FORMAT_VF = 33,
 } ttbc_file_format;
 
 /**
@@ -203,7 +202,8 @@ int ttbc_output_putc(ttbc_state_t *es, Option_OutputId handle, int c);
  *
  * This function is unsafe because it dereferences raw C pointers.
  */
-size_t ttbc_output_write(ttbc_state_t *es, Option_OutputId handle, const uint8_t *data, size_t len);
+size_t ttbc_output_write(ttbc_state_t *es, Option_OutputId handle,
+                         const uint8_t *data, size_t len);
 
 /**
  * Flush pending writes to a Tectonic output file.
@@ -222,10 +222,14 @@ int ttbc_output_close(ttbc_state_t *es, Option_OutputId handle);
  *
  * This function is unsafe because it accepts a raw C string.
  */
-Option_InputId ttbc_input_open(ttbc_state_t *es,
-                               const char *name,
-                               ttbc_file_format format,
-                               int is_gz);
+Option_InputId ttbc_input_open(ttbc_state_t *es, const char *name,
+                               ttbc_file_format format, int is_gz);
+
+int ttbc_pic_get_cached_bounds(ttbc_state_t *es, const char *name, int type,
+                               int page, float bounds[4]);
+
+void ttbc_pic_set_cached_bounds(ttbc_state_t *es, const char *name, int type,
+                                int page, float bounds[4]);
 
 /**
  * Open the "primary input" file.
@@ -250,7 +254,8 @@ Option_InputId ttbc_input_open_primary(ttbc_state_t *es);
  *
  * This function is unsafe because it dereferences raw C pointers.
  */
-ssize_t ttbc_get_last_input_abspath(ttbc_state_t *es, uint8_t *buffer, size_t len);
+ssize_t ttbc_get_last_input_abspath(ttbc_state_t *es, uint8_t *buffer,
+                                    size_t len);
 
 /**
  * Get the size of a Tectonic input file.
@@ -269,11 +274,8 @@ int64_t ttbc_input_get_mtime(ttbc_state_t *es, Option_InputId handle);
  *
  * This function is unsafe because it dereferences raw pointers from C.
  */
-size_t ttbc_input_seek(ttbc_state_t *es,
-                       Option_InputId handle,
-                       ssize_t offset,
-                       int whence,
-                       int *internal_error);
+size_t ttbc_input_seek(ttbc_state_t *es, Option_InputId handle, ssize_t offset,
+                       int whence, int *internal_error);
 
 /**
  * Get a single character from a Tectonic input file.
@@ -288,26 +290,28 @@ int ttbc_input_ungetc(ttbc_state_t *es, Option_InputId handle, int ch);
 /**
  * Read data from a Tectonic input handle
  *
- * This read corresponds to Rust's read_exact, i.e. it will return exactly the number of requested
- * bytes or error (-1).
+ * This read corresponds to Rust's read_exact, i.e. it will return exactly the
+ * number of requested bytes or error (-1).
  *
  * # Safety
  *
  * This function is unsafe because it dereferences raw C pointers.
  */
-ssize_t ttbc_input_read(ttbc_state_t *es, Option_InputId handle, uint8_t *data, size_t len);
+ssize_t ttbc_input_read(ttbc_state_t *es, Option_InputId handle, uint8_t *data,
+                        size_t len);
 
 /**
  * Read data from a Tectonic input handle
  *
- * This read corresponds to Rust's read, i.e. it can return less bytes than requested (and does
- * when buffering)
+ * This read corresponds to Rust's read, i.e. it can return less bytes than
+ * requested (and does when buffering)
  *
  * # Safety
  *
  * This function is unsafe because it dereferences raw C pointers.
  */
-ssize_t ttbc_input_read_partial(ttbc_state_t *es, Option_InputId handle, uint8_t *data, size_t len);
+ssize_t ttbc_input_read_partial(ttbc_state_t *es, Option_InputId handle,
+                                uint8_t *data, size_t len);
 
 /**
  * Close a Tectonic input file.
@@ -334,7 +338,8 @@ ttbc_diagnostic_t *ttbc_diag_begin_error(void);
 void ttbc_diag_append(ttbc_diagnostic_t *diag, const char *text);
 
 /**
- * "Finish" a diagnostic: report it to the driver and free the diagnostic object.
+ * "Finish" a diagnostic: report it to the driver and free the diagnostic
+ * object.
  *
  * # Safety
  *
@@ -347,12 +352,13 @@ void ttbc_diag_finish(ttbc_state_t *es, ttbc_diagnostic_t *diag);
  *
  * # Safety
  *
- * This function is unsafe because it dereferences raw pointers from C and accepts a raw C string.
+ * This function is unsafe because it dereferences raw pointers from C and
+ * accepts a raw C string.
  */
 int ttbc_shell_escape(ttbc_state_t *es, const uint16_t *cmd, size_t len);
 
 #ifdef __cplusplus
-}  // extern "C"
-#endif  // __cplusplus
+} // extern "C"
+#endif // __cplusplus
 
-#endif  /* TECTONIC_BRIDGE_CORE_GENERATED_H */
+#endif /* TECTONIC_BRIDGE_CORE_GENERATED_H */

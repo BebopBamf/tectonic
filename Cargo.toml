@@ -29,6 +29,10 @@ license = "MIT"
 edition = "2021"
 exclude = ["/dist/", "/reference_sources/"]
 
+[[bin]]
+name = "texpresso-tonic"
+path = "src/bin/tectonic/main.rs"
+
 [badges]
 travis-ci = { repository = "tectonic-typesetting/tectonic" }
 codecov = { repository = "tectonic-typesetting/tectonic", service = "github" }
@@ -59,6 +63,7 @@ members = [
     "crates/xdv",
     "crates/xetex_format",
     "crates/xetex_layout",
+    "crates/texpresso_protocol",
 ]
 
 [workspace.lints.rust]

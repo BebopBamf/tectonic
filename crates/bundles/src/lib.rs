@@ -23,6 +23,7 @@ use tectonic_status_base::StatusBackend;
 pub mod cache;
 pub mod dir;
 pub mod itar;
+pub mod texpresso;
 mod ttb;
 pub mod ttb_fs;
 pub mod ttb_net;
