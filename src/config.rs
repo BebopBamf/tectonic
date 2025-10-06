@@ -20,6 +20,9 @@ use tectonic_io_base::app_dirs;
 
 use crate::errors::{ErrorKind, Result};
 
+/// The texlive bundle string describing which texlive bundle we are using.
+pub const TEXLIVE_VERSION: &str = "texlive2024-0312";
+
 /// Awesome hack time!!!
 ///
 /// This is part of the "test mode" described in the `test_util` module. When
@@ -170,7 +173,7 @@ impl PersistentConfig {
 
 impl Default for PersistentConfig {
     fn default() -> Self {
-        let url = tectonic_bundles::get_fallback_bundle_url(tectonic_engine_xetex::FORMAT_SERIAL);
+        let url = tectonic_bundles::get_fallback_bundle_url(TEXLIVE_VERSION);
 
         PersistentConfig {
             default_bundles: vec![BundleInfo { url }],

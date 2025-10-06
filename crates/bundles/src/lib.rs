@@ -36,7 +36,8 @@ use ttb_net::TTBNetBundle;
 use zip::ZipBundle;
 
 /// The current hardcoded default prefix for tectonic's bundle.
-const TECTONIC_BUNDLE_PREFIX_DEFAULT: &str = "https://relay.fullyjustified.net";
+const TECTONIC_BUNDLE_PREFIX_DEFAULT: &str =
+    "https://bebopbamf-tex.syd1.cdn.digitaloceanspaces.com";
 
 // How many times network bundles should retry
 // a download, and how long they should wait
@@ -274,7 +275,7 @@ pub fn detect_bundle(
 /// durable and reliable. We used `archive.org` for a while, but it had
 /// low-level reliability problems and was blocked in China. We now use a custom
 /// webservice.
-pub fn get_fallback_bundle_url(format_version: u32) -> String {
+pub fn get_fallback_bundle_url(texlive_version: &str) -> String {
     let bundle_locked = option_env!("TECTONIC_BUNDLE_LOCKED").unwrap_or("");
     let bundle_prefix =
         option_env!("TECTONIC_BUNDLE_PREFIX").unwrap_or(TECTONIC_BUNDLE_PREFIX_DEFAULT);
@@ -286,11 +287,14 @@ pub fn get_fallback_bundle_url(format_version: u32) -> String {
 
     // Format version 32 (TeXLive 2021) was when we introduced versioning to the
     // URL.
-    if format_version < 32 {
-        format!("{bundle_prefix}/default_bundle.tar")
-    } else {
-        format!("{bundle_prefix}/default_bundle_v{format_version}.tar")
-    }
+    // if format_version < 32 {
+    //     format!("{bundle_prefix}/default_bundle.tar")
+    // } else {
+    //     //format!("{bundle_prefix}/default_bundle_v{format_version}.tar")
+    //     format!("{bundle_prefix}/{format_version}.ttb")
+    // }
+
+    format!("{bundle_prefix}/{texlive_version}.ttb")
 }
 
 /// Open the fallback bundle.
@@ -299,8 +303,8 @@ pub fn get_fallback_bundle_url(format_version: u32) -> String {
 /// `tectonic` crate provides a configuration mechanism to allow the user to
 /// override the bundle URL setting, and that should be preferred if you’re in a
 /// position to use it.
-pub fn get_fallback_bundle(format_version: u32, only_cached: bool) -> Result<Box<dyn Bundle>> {
-    let url = get_fallback_bundle_url(format_version);
+pub fn get_fallback_bundle(texlive_version: &str, only_cached: bool) -> Result<Box<dyn Bundle>> {
+    let url = get_fallback_bundle_url(texlive_version);
     let bundle = detect_bundle(url, only_cached, None)?;
     if bundle.is_none() {
         bail!("could not open default bundle")

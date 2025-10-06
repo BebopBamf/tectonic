@@ -41,7 +41,7 @@ fn get_a_bundle(
                     "not in a document workspace; using the built-in default bundle"
                 );
                 Ok(Box::new(tectonic_bundles::get_fallback_bundle(
-                    tectonic_engine_xetex::FORMAT_SERIAL,
+                    tectonic::config::TEXLIVE_VERSION,
                     only_cached,
                 )?))
             }
